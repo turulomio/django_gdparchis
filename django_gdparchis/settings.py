@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from gdparchis import __version__
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-bw3i0_k9&w3o@t=j0m6ns&yry*cw(8^vw3386u+!%&fyt*3sv#'
+SECRET_KEY = 'CAMBIAME-CAMBIAME-CAMBIAME-CAMBIAME-CAMBIAME-CAMBIAME-CAMBIAME'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_spectacular', 
+    'gdparchis', 
 ]
 
 MIDDLEWARE = [
@@ -48,6 +52,24 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK={ 
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.BasicAuthentication',  ## Uncomment to use api in url 
+        'rest_framework.authentication.TokenAuthentication', 
+    ], 
+    'COERCE_DECIMAL_TO_STRING': False, 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django gdParchis API Documentation',
+    'DESCRIPTION': 'Interactive documentation',
+    'VERSION': __version__,
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
+
 
 ROOT_URLCONF = 'django_gdparchis.urls'
 
