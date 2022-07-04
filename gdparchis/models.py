@@ -4,6 +4,7 @@ class Installation(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
     uuid= models.UUIDField(blank=False, null=False)
     ip=models.CharField(max_length=50, blank=False, null=False)
+    so=models.CharField(max_length=200, blank=False, null=False)
 
     class Meta:
         managed = True
@@ -19,6 +20,7 @@ class Games(models.Model):
     num_players=models.IntegerField(blank=False, null=False)
     human_won=models.BooleanField()
     version=models.CharField(max_length=50, blank=False, null=False)
+    faked=models.BooleanField(default=False)
     class Meta:
         managed = True
         db_table = 'games'

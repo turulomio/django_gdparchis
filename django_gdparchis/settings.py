@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-from gdparchis import __version__
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'drf_spectacular', 
     'gdparchis', 
 ]
 
@@ -62,13 +60,6 @@ REST_FRAMEWORK={
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Django gdParchis API Documentation',
-    'DESCRIPTION': 'Interactive documentation',
-    'VERSION': __version__,
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
-}
 
 
 ROOT_URLCONF = 'django_gdparchis.urls'
