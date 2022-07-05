@@ -15,9 +15,8 @@ class Installation(APIView):
             Sets a new installation or updates it
         """
         uuid=RequestString(request, "uuid")
-        ip=RequestString(request, "ip")
         so=RequestString(request, "so")
-        if all_args_are_not_empty(uuid, ip, so):
+        if all_args_are_not_empty(uuid, so):
             if models.Installation.objects.filter(uuid=uuid).exists():
                 return json_success_response(False,  _("Installation already exists"))
             else:
@@ -25,8 +24,9 @@ class Installation(APIView):
                 installation.datetime=timezone.now()
                 installation.uuid=uuid
                 installation.so=so
-                installation.ip=ip
+                installation.ip=request.META.get("REMOTE_ADDR", "")
                 installation.save()
+                print(request.META.get("REMOTE_ADDR"),  request.META['HTTP_USER_AGENT'])
                 return json_success_response(True,  _("Your installation was registered"))
         return json_success_response(False,  _("There was a problem registering your installation"))
 
