@@ -26,7 +26,6 @@ class Installation(APIView):
                 installation.so=so
                 installation.ip=request.META.get("REMOTE_ADDR", "")
                 installation.save()
-                print(request.META.get("REMOTE_ADDR"),  request.META['HTTP_USER_AGENT'])
                 return json_success_response(True,  _("Your installation was registered"))
         return json_success_response(False,  _("There was a problem registering your installation"))
 
