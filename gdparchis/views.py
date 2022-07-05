@@ -47,7 +47,8 @@ class Game(APIView):
             installation=models.Installation.objects.get(uuid=installation_uuid)
         except:
             return json_success_response(False,  _("I can't register your game due to your installation hasn't been registered"))
-
+        
+        print(max_players, num_players, installation, version, game_uuid)
         if all_args_are_not_empty(max_players, num_players, installation, version, game_uuid):
             game=models.Game()
             game.starts=timezone.now()

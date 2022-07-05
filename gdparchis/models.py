@@ -11,16 +11,16 @@ class Installation(models.Model):
         db_table = 'installations'
         
         
-class Games(models.Model):
+class Game(models.Model):
     starts = models.DateTimeField(blank=False, null=False)
-    ends = models.DateTimeField()
+    ends = models.DateTimeField(blank=True, null=True)
     uuid= models.UUIDField(blank=False, null=False)
     installation = models.ForeignKey(Installation, on_delete=models.CASCADE, blank=False, null=False)
     max_players=models.IntegerField(blank=False, null=False)
     num_players=models.IntegerField(blank=False, null=False)
-    human_won=models.BooleanField()
+    human_won=models.BooleanField(null=True)
     version=models.CharField(max_length=50, blank=False, null=False)
-    faked=models.BooleanField(default=False)
+    faked=models.BooleanField(default=False, null=False)
     class Meta:
         managed = True
         db_table = 'games'
