@@ -66,25 +66,29 @@ class Game(APIView):
         
         human_won=RequestInteger(request, "human_won")
         game_uuid=RequestString(request, "game_uuid")
-        faked=RequestBool(request, "faked", False)
-                
+        faked=RequestBool(request, "faked")
+              
+        print(human_won, game_uuid, faked)
         try:
             game=models.Game.objects.get(uuid=game_uuid)
         except:
             return json_success_response(False,  _("I can't update your game due to it doesn't exist"))
-
-        
-        if all_args_are_not_empty(human_won, game_uuid, faked):
-            if game.faked or game.ends is not None:
-                return json_success_response(False,  _("You are cheating"))
-                
             
-            game.faked=faked
-            game.ends=timezone.now()
-            game.human_won=human_won
-            game.save()
-            if faked:
-                return json_success_response(False,  _("You are cheating"))
-            else:
+            
+        if faked is not None and faked is True:
+            if all_args_are_not_empty(game, faked):                
+                game.faked=faked
+                game.save()
+                return json_success_response(True,  _("Your game was faked"))
+            return json_success_response(False,  _("I couldn't set your game as faked"))
+
+        else:
+            if all_args_are_not_empty(human_won, game_uuid):
+                if game.faked or game.ends is not None:
+                    return json_success_response(False,  _("You are cheating"))
+                    
+                game.ends=timezone.now()
+                game.human_won=human_won
+                game.save()
                 return json_success_response(True,  _("Your game was updated"))
                 
