@@ -106,21 +106,20 @@ def StatisticsGlobal(request):
         
         games={
             "Total games played": models.Game.objects.count(), 
-            "Games played in the last 30 days": 0, 
+            "Games played in the last 30 days": models.Game.objects.filter(starts__gte=days30).count(), 
             "Games per installation": 0, 
-            "Games finished": 0, 
-            "Finished games won by humans": 0, 
-        
+            "Games finished": models.Game.objects.filter(ends__isnull=False).count(), 
+            "Finished games won by humans": models.Game.objects.filter(human_won=True).count(), 
         }
         
         modes=[]
         for mode in  [3, 4, 6, 8]:
             modes.append({
                 "Maximum players":mode, 
-                "Number of games": 0, 
-                "Number of games finished": 0, 
+                "Number of games": models.Game.objects.filter(max_players=mode).count(), 
+                "Number of games finished": models.Game.objects.filter(ends__isnull=False, max_players=mode).count(), 
                 "Median minutes to end a game": 0, 
-                "Human victories": 0, 
+                "Human victories": models.Game.objects.filter(human_won=True, max_players=mode).count(), 
             })
 
         top_players=[]
