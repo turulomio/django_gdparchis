@@ -21,6 +21,7 @@ class Game(models.Model):
     human_won=models.BooleanField(null=True)
     version=models.CharField(max_length=50, blank=False, null=False)
     faked=models.BooleanField(default=False, null=False)
+
     class Meta:
         managed = True
         db_table = 'games'
