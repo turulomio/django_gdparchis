@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.db.models import Max, Count, F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -7,6 +8,7 @@ from gdparchis.reusing.responses_json import json_success_response, json_data_re
 from gdparchis.reusing.request_casting import RequestBool, RequestInteger,  RequestString,  all_args_are_not_empty
 
 from rest_framework.views import APIView
+from statistics import median
 
 class InstallationAPIView(APIView):
     permission_classes=[]
@@ -47,7 +49,7 @@ class GameAPIView(APIView):
         try:
             installation=models.Installation.objects.get(uuid=installation_uuid)
         except:
-            return json_success_response(False,  _("I can't register your game due to your installation hasn't been registered"))
+            return json_success_response(False,  _("I can't register your game due to your installation haseconds between datetimessn't been registered"))
         
         print(max_players, num_players, installation, version, game_uuid)
         if all_args_are_not_empty(max_players, num_players, installation, version, game_uuid):
@@ -94,35 +96,56 @@ class GameAPIView(APIView):
             return json_success_response(True,  _("Your game was closed"))
 
         return json_success_response(False,  _("Something wrong with my radio"))
+        
+def Average(lst):
+    return sum(lst) / len(lst)
 
 def StatisticsGlobal(request):
+        lastversion=models.Game.objects.aggregate(Max('version')).get('version__max',  '0.0.0')
+        average_games_by_installations=Average(models.Installation.objects.annotate(Count("game")).values_list("game__count", flat=True))
+    
         days30=timezone.now()-timedelta(days=30)
         installations={
                 "Total installations": models.Installation.objects.count(), 
                 "Number of installations in the last 30 days": models.Installation.objects.filter(datetime__gte=days30).count(), 
                 "Installation that played in the last 30 days": models.Game.objects.filter(starts__gte=days30).values("installation_id").distinct().count(), 
-                "Installations which are in the last version 20181125": 0, 
+                "Last version": lastversion, 
+                "Installations which are in the last version": models.Game.objects.filter(version=lastversion).values("installation_id").distinct().count(), 
         }
         
         games={
             "Total games played": models.Game.objects.count(), 
             "Games played in the last 30 days": models.Game.objects.filter(starts__gte=days30).count(), 
-            "Games per installation": 0, 
+            "Games per installation (average)": average_games_by_installations, 
             "Games finished": models.Game.objects.filter(ends__isnull=False).count(), 
             "Finished games won by humans": models.Game.objects.filter(human_won=True).count(), 
         }
         
         modes=[]
         for mode in  [3, 4, 6, 8]:
+            
+            timedeltas=list(models.Game.objects.filter(ends__isnull=False, max_players=mode).annotate(diff=F('ends')-F('starts')).values_list("diff", flat=True))
+            mode_median=round(median(timedeltas).total_seconds()/60, 2) if len(timedeltas)>0 else None
+            
+            
+            
             modes.append({
                 "Maximum players":mode, 
                 "Number of games": models.Game.objects.filter(max_players=mode).count(), 
                 "Number of games finished": models.Game.objects.filter(ends__isnull=False, max_players=mode).count(), 
-                "Median minutes to end a game": 0, 
+                "Median minutes to end a game": mode_median, 
                 "Human victories": models.Game.objects.filter(human_won=True, max_players=mode).count(), 
             })
 
+        qs_top_players=models.Installation.objects.annotate(Count("game")).order_by("-game__count")
         top_players=[]
+        for p in qs_top_players[:10]:
+            top_players.append({
+                "Id":p.uuid, 
+                "Number of games": p.game__count, 
+                "First installation": p.datetime, 
+                "Last game":p.game_set.all().aggregate(Max("starts")).get("starts__max", None), 
+            })
                 
         
         r={}
