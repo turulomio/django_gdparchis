@@ -87,7 +87,7 @@ class GameAPIView(APIView):
             game.save()
             return json_success_response(True,  _("Your game has been marked as faked"))
 
-        if human_won is True:                    
+        if human_won is not None:                    
             game.ends=timezone.now()
             game.human_won=human_won
             game.save()
