@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from gdparchis import models
 from gdparchis.reusing.responses_json import json_success_response, json_data_response
-from gdparchis.reusing.request_casting import RequestBool, RequestInteger,  RequestString,  all_args_are_not_empty
+from gdparchis.reusing.request_casting import RequestBool, RequestInteger,  RequestString, RequestGetString,  all_args_are_not_empty
 
 from rest_framework.views import APIView
 from statistics import median
@@ -156,12 +156,46 @@ def StatisticsGlobal(request):
         return json_data_response(True,  r,  _("Global statistics"))
     
 def StatisticsUser(request):
-        uuid=RequestString(request, "uuid")
+        uuid_=RequestGetString(request, "uuid")
+        installation=models.Installation.objects.get(uuid=uuid_)
         r={}
         try:
-            installation=models.Installation.object.get(uuid=uuid)
+            installation=models.Installation.objects.get(uuid=uuid_)
         except:
-            return json_data_response(False, r,  _("Installation wasn't found"))
+            return json_data_response(False, r,  _("Installation {0} wasn't found").format(uuid_))
+    
+        days30=timezone.now()-timedelta(days=30)
+        
+        qs_top_players=models.Installation.objects.annotate(Count("game")).order_by("-game__count")
+        for global_position, p in enumerate(qs_top_players):
+            if p.uuid==installation:
+                break
+            
+        games={
+            "Total games played in this installation": models.Game.objects.filter(installation=installation).count(), 
+            "Games played in the last 30 days in this installation": models.Game.objects.filter(installation=installation, starts__gte=days30).count(), 
+            "Games finished in this installation": models.Game.objects.filter(installation=installation, ends__isnull=False).count(), 
+            "Finished games won by humans in this installation": models.Game.objects.filter(installation=installation, human_won=True).count(), 
+            "Global classification of users who have played the most": global_position,
+        }
+        
+        modes=[]
+        for mode in  [3, 4, 6, 8]:
+            
+            timedeltas=list(models.Game.objects.filter(installation=installation, ends__isnull=False, max_players=mode).annotate(diff=F('ends')-F('starts')).values_list("diff", flat=True))
+            mode_median=round(median(timedeltas).total_seconds()/60, 2) if len(timedeltas)>0 else None
+            
+            modes.append({
+                "Maximum players":mode, 
+                "Number of games in this installation": models.Game.objects.filter(installation=installation, max_players=mode).count(), 
+                "Number of games finished in this installation": models.Game.objects.filter(installation=installation, ends__isnull=False, max_players=mode).count(), 
+                "Median minutes to end a game in this installation": mode_median, 
+                "Human victories in this installation": models.Game.objects.filter(installation=installation, human_won=True, max_players=mode).count(), 
+            })
 
-        r["Number"]=models.Game.objects.count(installation=installation)
-        return json_data_response(True, r,   _("User statistics"))
+                
+        
+        r={}
+        r["Games"]=games
+        r["Modes"]=modes
+        return json_data_response(True,  r,  _("Installation {0} statistics").format(installation.uuid))
