@@ -168,7 +168,7 @@ def StatisticsUser(request):
         
         qs_top_players=models.Installation.objects.annotate(Count("game")).order_by("-game__count")
         for global_position, p in enumerate(qs_top_players):
-            if p.uuid==installation:
+            if p.uuid==installation.uuid:
                 break
             
         games={
