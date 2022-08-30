@@ -176,7 +176,7 @@ def StatisticsUser(request):
             "Games played in the last 30 days in this installation": models.Game.objects.filter(installation=installation, starts__gte=days30).count(), 
             "Games finished in this installation": models.Game.objects.filter(installation=installation, ends__isnull=False).count(), 
             "Finished games won by humans in this installation": models.Game.objects.filter(installation=installation, human_won=True).count(), 
-            "Global classification of users who have played the most": global_position,
+            "Global classification of users who have played the most": global_position+1,
         }
         
         modes=[]
