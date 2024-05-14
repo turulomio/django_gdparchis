@@ -3,12 +3,12 @@ from django.db.models import Max, Count, F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from gdparchis import models
+from gdparchis import models, serializers
 from request_casting.request_casting import RequestBool, RequestInteger,  RequestString, all_args_are_not_empty
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import  status
+from rest_framework import  status, viewsets
 from statistics import median
 
 class InstallationAPIView(APIView):
@@ -200,3 +200,12 @@ def StatisticsUser(request):
         r["Games"]=games
         r["Modes"]=modes
         return Response( r , status.HTTP_200_OK)
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = models.Game.objects.all()
+    serializer_class =  serializers.GameSerializer
+    
+
+class StateViewSet(viewsets.ModelViewSet):
+    queryset = models.State.objects.all()
+    serializer_class =  serializers.StateSerializer

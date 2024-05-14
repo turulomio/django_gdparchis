@@ -1,6 +1,6 @@
 from django.db import models
 
-class Installation(models.Model):
+class InstallationStatistic(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
     uuid= models.UUIDField(blank=False, null=False)
     ip=models.CharField(max_length=50, blank=False, null=False)
@@ -8,14 +8,14 @@ class Installation(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'installations'
+        db_table = 'installations_statistics'
         
         
-class Game(models.Model):
+class GameStatistic(models.Model):
     starts = models.DateTimeField(blank=False, null=False)
     ends = models.DateTimeField(blank=True, null=True)
-    uuid= models.UUIDField(blank=False, null=False)
-    installation = models.ForeignKey(Installation, on_delete=models.CASCADE, blank=False, null=False)
+    uuid= models.UUIDField(blank=True, null=False)
+    installation = models.ForeignKey("InstallationStatistic", on_delete=models.CASCADE, blank=False, null=False)
     max_players=models.IntegerField(blank=False, null=False)
     num_players=models.IntegerField(blank=False, null=False)
     human_won=models.BooleanField(null=True)
@@ -24,4 +24,22 @@ class Game(models.Model):
 
     class Meta:
         managed = True
+        db_table = 'games_statistics'
+        
+        
+class Game(models.Model):    
+    uuid= models.UUIDField(blank=False, null=False)
+    datetime=models.DateTimeField(blank=False, null=False)
+    max_players=models.IntegerField(blank=False, null=False)
+    class Meta:
+        managed = True
         db_table = 'games'
+
+class State(models.Model):
+    game = models.ForeignKey("Game", on_delete=models.CASCADE, blank=False, null=False)
+    datetime=models.DateTimeField(blank=False, null=False)
+    state=models.TextField(blank=False, null=False)    
+    
+    class Meta:
+        managed = True
+        db_table = 'states'
