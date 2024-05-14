@@ -3,11 +3,12 @@ from django.db.models import Max, Count, F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from gdparchis import models
-from gdparchis.reusing.responses_json import json_success_response, json_data_response
-from gdparchis.reusing.request_casting import RequestBool, RequestInteger,  RequestString, RequestGetString,  all_args_are_not_empty
+from gdparchis import models, serializers
+from request_casting.request_casting import RequestBool, RequestInteger,  RequestString, all_args_are_not_empty
 
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import  status, viewsets
 from statistics import median
 
 class InstallationAPIView(APIView):
@@ -21,7 +22,7 @@ class InstallationAPIView(APIView):
         so=RequestString(request, "so")
         if all_args_are_not_empty(uuid, so):
             if models.Installation.objects.filter(uuid=uuid).exists():
-                return json_success_response(False,  _("Installation already exists"))
+                return Response( _("Installation already exists"), status.HTTP_400_BAD_REQUEST)
             else:
                 installation=models.Installation()
                 installation.datetime=timezone.now()
@@ -29,8 +30,8 @@ class InstallationAPIView(APIView):
                 installation.so=so
                 installation.ip=request.META.get("REMOTE_ADDR", "")
                 installation.save()
-                return json_success_response(True,  _("Your installation was registered"))
-        return json_success_response(False,  _("There was a problem registering your installation"))
+                return Response( _("Your installation was registered"), status.HTTP_200_OK)
+        return Response(_("There was a problem registering your installation"), status.HTTP_400_BAD_REQUEST)
 
 class GameAPIView(APIView):
     permission_classes=[]
@@ -44,12 +45,12 @@ class GameAPIView(APIView):
         version=RequestString(request, "version")
 
         if models.Game.objects.filter(uuid=game_uuid).exists():
-            return json_success_response(False,  _("Game already exists"))
+                return Response( _("Game already exists"), status.HTTP_400_BAD_REQUEST)
         
         try:
             installation=models.Installation.objects.get(uuid=installation_uuid)
         except:
-            return json_success_response(False,  _("I can't register your game due to your installation haseconds between datetimessn't been registered"))
+            return Response( _("I can't register your game due to your installation haseconds between datetimessn't been registered"), status.HTTP_400_BAD_REQUEST)
         
         print(max_players, num_players, installation, version, game_uuid)
         if all_args_are_not_empty(max_players, num_players, installation, version, game_uuid):
@@ -61,8 +62,8 @@ class GameAPIView(APIView):
             game.uuid=game_uuid
             game.version=version
             game.save()
-            return json_success_response(True,  _("Your game was registered"))
-        return json_success_response(False,  _("There was a problem registering your game"))
+            return Response( _("Your game was registered"), status.HTTP_200_OK)
+        return Response( _("There was a problem registering your game"), status.HTTP_400_BAD_REQUEST)
         
     ## End of game
     def put(self, request):
@@ -75,27 +76,27 @@ class GameAPIView(APIView):
         try:
             game=models.Game.objects.get(uuid=game_uuid)
         except:
-            return json_success_response(False,  _("I can't update your game due to it doesn't exist"))
+            return Response( _("I can't update your game due to it doesn't exist"), status.HTTP_400_BAD_REQUEST)
             
         if game.ends is not None:
-            return json_success_response(False,  _("This game was already closed"))
+            return Response( _("This game was already closed"), status.HTTP_400_BAD_REQUEST)
             
         if game.faked is True:
-            return json_success_response(False,  _("This game was already faked. You can't edit it anymore"))
+            return Response( _("This game was already faked. You can't edit it anymore"), status.HTTP_400_BAD_REQUEST)
             
             
         if faked is True:
             game.faked=faked
             game.save()
-            return json_success_response(True,  _("Your game has been marked as faked"))
+            return Response( _("Your game has been marked as faked"), status.HTTP_400_BAD_REQUEST)
 
         if human_won is not None:                    
             game.ends=timezone.now()
             game.human_won=human_won
             game.save()
-            return json_success_response(True,  _("Your game was closed"))
+            return Response( _("Your game was closed"), status.HTTP_200_OK)
 
-        return json_success_response(False,  _("Something wrong with my radio"))
+        return Response( _("Something wrong with my radio"), status.HTTP_400_BAD_REQUEST)
         
 def Average(lst):
     return sum(lst) / len(lst)
@@ -153,16 +154,16 @@ def StatisticsGlobal(request):
         r["Games"]=games
         r["Modes"]=modes
         r["Top players"]=top_players
-        return json_data_response(True,  r,  _("Global statistics"))
+        return Response( r, status.HTTP_200_OK)
     
 def StatisticsUser(request):
-        uuid_=RequestGetString(request, "uuid")
+        uuid_=RequestString(request, "uuid")
         installation=models.Installation.objects.get(uuid=uuid_)
         r={}
         try:
             installation=models.Installation.objects.get(uuid=uuid_)
         except:
-            return json_data_response(False, r,  _("Installation {0} wasn't found").format(uuid_))
+            return Response( _("Installation {0} wasn't found").format(uuid_), status.HTTP_400_BAD_REQUEST)
     
         days30=timezone.now()-timedelta(days=30)
         
@@ -198,4 +199,13 @@ def StatisticsUser(request):
         r={}
         r["Games"]=games
         r["Modes"]=modes
-        return json_data_response(True,  r,  _("Installation {0} statistics").format(installation.uuid))
+        return Response( r , status.HTTP_200_OK)
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = models.Game.objects.all()
+    serializer_class =  serializers.GameSerializer
+    
+
+class StateViewSet(viewsets.ModelViewSet):
+    queryset = models.State.objects.all()
+    serializer_class =  serializers.StateSerializer

@@ -57,7 +57,7 @@ REST_FRAMEWORK={
         'rest_framework.authentication.TokenAuthentication', 
     ], 
     'COERCE_DECIMAL_TO_STRING': False, 
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+#    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
