@@ -1,8 +1,8 @@
 {
   "header": {
     "comment": "eric project file for project django_gdparchis",
-    "copyright": "Copyright (C) 2022 , ",
-    "saved": "2022-07-04, 14:52:34"
+    "copyright": "Copyright (C) 2024 , ",
+    "saved": "2024-05-14, 16:16:36"
   },
   "project": {
     "AUTHOR": "",
@@ -11,6 +11,7 @@
     "DOCSTRING": "",
     "DOCUMENTATIONPARMS": {},
     "EMAIL": "",
+    "EMBEDDED_VENV": false,
     "EOL": 0,
     "FILETYPES": {
       "*.e4p": "OTHERS",
@@ -51,7 +52,8 @@
     },
     "MIXEDLANGUAGE": false,
     "OTHERS": [
-      "README.md"
+      "README.md",
+      "django_gdparchis.epj"
     ],
     "OTHERTOOLSPARMS": {},
     "PACKAGERSPARMS": {},
@@ -75,15 +77,18 @@
       "gdparchis/__init__.py",
       "gdparchis/admin.py",
       "gdparchis/apps.py",
+      "gdparchis/middleware.py",
       "gdparchis/migrations/__init__.py",
       "gdparchis/models.py",
       "gdparchis/reusing/github.py",
       "gdparchis/reusing/request_casting.py",
       "gdparchis/reusing/responses_json.py",
+      "gdparchis/serializers.py",
       "gdparchis/tests.py",
       "gdparchis/views.py",
       "manage.py"
     ],
+    "SOURCESDIR": "",
     "SPELLEXCLUDES": "",
     "SPELLLANGUAGE": "en_US",
     "SPELLWORDS": "",
@@ -92,6 +97,7 @@
     "TRANSLATIONPATTERN": "",
     "TRANSLATIONS": [],
     "TRANSLATIONSBINPATH": "",
+    "TRANSLATIONSOURCESTARTPATH": "",
     "UICPARAMS": {
       "Package": "",
       "PackagesRoot": "",
