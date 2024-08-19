@@ -213,13 +213,13 @@ class GameViewSet(viewsets.ModelViewSet):
     serializer_class =  serializers.GameSerializer
     
     
-    @action(detail=True, methods=["get"], name='Returns current game state', url_path="state", url_name='state')
+    @action(detail=True, methods=["GET"], name='Returns current game state', url_path="state", url_name='state')
     def state(self, request, pk=None):
         game=self.get_object()
         ls=game.last_state(request)
         return Response(ls.state(), status=status.HTTP_200_OK)    
     
-    @action(detail=True, methods=["get"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
+    @action(detail=True, methods=["POST"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
     def dice_click(self, request, pk=None):
         player=RequestInteger(request, "player")
         value=RequestInteger(request, "value")
@@ -230,14 +230,12 @@ class GameViewSet(viewsets.ModelViewSet):
             return Response(_("Some parameters are wrong"), status.HTTP_400_BAD_REQUEST)
 
         #Checks current_player is player clicked dice
-        if not ls.is_current_player(player):
+        if not ls.cp_is(player):
             return Response(_("Incorrect player clicked dice"), status.HTTP_400_BAD_REQUEST)
             
         #Comprueba que está esperando el dado del jugador, lo cambia y devuelve 
-        if ls.current_player_is_dice_waiting():
-            ls.current_player_add_a_throw(value)
-            ls.current_player_set_dice_waiting(False)
-            ##Must select pieces as waiting
+        if ls.cp_is_dice_waiting():
+            ls.change_waitings_after_dice_throw(player, value)
 
         return Response(ls.state(), status=status.HTTP_200_OK)
         

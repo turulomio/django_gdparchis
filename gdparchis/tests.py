@@ -38,7 +38,6 @@ class API(APITestCase):
         
         client = APIClient()
         response = client.post('/login/', {'username': cls.user_authorized_1.username, 'password': 'testing123',},format='json')
-        print(response.content)
         result = loads(response.content)
         cls.token_user_authorized_1 = result
         
@@ -59,14 +58,13 @@ class API(APITestCase):
         cls.client_anonymous.user=None
 
     def test_Game(self):
-        """
-            Test created users has its profile automatically generated
-        """
         game=tests_helpers.client_post(self, self.client_authorized_1, "/api/game/",  {"max_players":4},  status.HTTP_201_CREATED)
         print(game)
         state=tests_helpers.client_get(self, self.client_authorized_1, game["url"]+"state/",   status.HTTP_200_OK)
+        
+        state=tests_helpers.client_post(self, self.client_authorized_1, game["url"]+"dice_click/",   {"player": 1,  "value":5},  status.HTTP_400_BAD_REQUEST)
+        self.assertEqual("Incorrect player clicked dice",  state)
+                
+        state=tests_helpers.client_post(self, self.client_authorized_1, game["url"]+"dice_click/",   {"player": 0,  "value":5},  status.HTTP_200_OK)
         dod.dod_print(state)
-        
-        state=tests_helpers.client_get(self, self.client_authorized_1, game["url"]+"dice_click/",   status.HTTP_200_OK)
-        
         

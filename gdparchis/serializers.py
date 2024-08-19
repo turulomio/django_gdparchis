@@ -44,7 +44,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
                 dict_piece["id"]=piece_id
                 dict_piece["route_position"]=0
                 dict_piece["square_position"]=0
-                dict_piece["waiting"]=False
+                dict_piece["waiting"]=0# Es un numero que tras analizar el dado o los extra_moves pone 0 si no puede mover y el numero  que puede mover si pudiera
                 dict_p["pieces"].append(dict_piece)
             dict["players"].append(dict_p)
         
