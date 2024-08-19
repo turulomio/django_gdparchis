@@ -1,10 +1,11 @@
-
-#from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.models import User
+from gdparchis.reusing import tests_helpers
 from json import loads
+from pydicts import lod,  dod
+from rest_framework import status
+from rest_framework.test import APITestCase, APIClient
 
-
+lod,  dod
 
 class API(APITestCase):
     
@@ -57,8 +58,13 @@ class API(APITestCase):
         cls.client_anonymous=APIClient()
         cls.client_anonymous.user=None
 
-    def test_Profile(self):
+    def test_Game(self):
         """
             Test created users has its profile automatically generated
         """
-        pass
+        game=tests_helpers.client_post(self, self.client_authorized_1, "/api/game/",  {"max_players":4},  status.HTTP_201_CREATED)
+        print(game)
+        state=tests_helpers.client_get(self, self.client_authorized_1, game["url"]+"state/",   status.HTTP_200_OK)
+        dod.dod_print(state)
+        
+        

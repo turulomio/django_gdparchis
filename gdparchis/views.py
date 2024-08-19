@@ -211,6 +211,13 @@ class GameViewSet(viewsets.ModelViewSet):
     serializer_class =  serializers.GameSerializer
     
     
+    @action(detail=True, methods=["get"], name='Returns current game state', url_path="state", url_name='state')
+    def state(self, request, pk=None):
+        game=self.get_object()
+        ls=game.last_state(request)
+        dod.dod_print(ls)
+        return Response(ls, status=status.HTTP_200_OK)    
+    
     @action(detail=True, methods=["get"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
     def dice_click(self, request, pk=None):
         player=RequestInteger(request, "player")

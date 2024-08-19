@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_gdparchis",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-05-15, 07:06:12"
+    "saved": "2024-08-19, 08:33:32"
   },
   "project": {
     "AUTHOR": "",
@@ -78,15 +78,28 @@
       "gdparchis/admin.py",
       "gdparchis/apps.py",
       "gdparchis/dictstate.py",
+      "gdparchis/management/commands/dumppostgres.py",
+      "gdparchis/management/commands/procedure.py",
       "gdparchis/middleware.py",
+      "gdparchis/migrations/0001_initial.py",
+      "gdparchis/migrations/0002_rename_game_gamestatistic_and_more.py",
+      "gdparchis/migrations/0003_game_state.py",
+      "gdparchis/migrations/0004_game_datetime_game_max_players_game_uuid.py",
+      "gdparchis/migrations/0005_alter_gamestatistic_uuid.py",
+      "gdparchis/migrations/0006_alter_game_datetime_alter_game_uuid.py",
       "gdparchis/migrations/__init__.py",
       "gdparchis/models.py",
+      "gdparchis/poethepoet.py",
       "gdparchis/reusing/github.py",
+      "gdparchis/reusing/tests_helpers.py",
+      "gdparchis/routes4.py",
       "gdparchis/serializers.py",
+      "gdparchis/squares4.py",
       "gdparchis/tests.py",
       "gdparchis/types.py",
       "gdparchis/views.py",
-      "manage.py"
+      "manage.py",
+      "update_reusing.py"
     ],
     "SOURCESDIR": "",
     "SPELLEXCLUDES": "",
