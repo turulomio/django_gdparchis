@@ -221,6 +221,7 @@ class GameViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=["POST"], name='Process user dice click', url_path="dice_click", url_name='dice_click')
     def dice_click(self, request, pk=None):
+        
         player=RequestInteger(request, "player")
         value=RequestInteger(request, "value")
         game=self.get_object()
@@ -237,6 +238,7 @@ class GameViewSet(viewsets.ModelViewSet):
         if ls.cp_is_dice_waiting():
             ls.change_waitings_after_dice_throw(player, value)
             ls.save()
+            print("Dice click took",  timezone.now()-request.start)
             return Response(ls.state(), status=status.HTTP_200_OK)    
         
         return Response(_("Dice is not waiting"), status.HTTP_400_BAD_REQUEST)
@@ -259,6 +261,7 @@ class GameViewSet(viewsets.ModelViewSet):
         if ls.piece_is_waiting(player, piece):
             ls.process_piece_click(player, piece)
             ls.save()
+            print("Piece click took",  timezone.now()-request.start)
             return Response(ls.state(), status=status.HTTP_200_OK)
         else:
             return Response(_("This piece can't be moved"), status.HTTP_400_BAD_REQUEST)

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from gdparchis.routes4 import routes4
 from gdparchis.squares4 import squares4
 
@@ -14,6 +15,7 @@ class GdParchisMiddleware:
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
+        request.start=timezone.now()
         request.squares4=self.squares4
         request.routes4=self.routes4
 
