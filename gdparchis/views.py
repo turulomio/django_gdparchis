@@ -261,6 +261,7 @@ def login(request):
         if not pwd_valid:
             return Response("Wrong credentials", status=status.HTTP_401_UNAUTHORIZED)
 
+        print(Token)
         if Token.objects.filter(user=user).exists():#Lo borra
             token=Token.objects.get(user=user)
             token.delete()

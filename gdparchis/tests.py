@@ -37,7 +37,7 @@ class API(APITestCase):
         
         client = APIClient()
         response = client.post('/login/', {'username': cls.user_authorized_1.username, 'password': 'testing123',},format='json')
-        print(response)
+        print(response.content)
         result = loads(response.content)
         cls.token_user_authorized_1 = result
         
@@ -45,9 +45,6 @@ class API(APITestCase):
         result = loads(response.content)
         cls.token_user_authorized_2 = result
 
-        response = client.post('/login/', {'username': cls.user_catalog_manager.username, 'password': 'catalog_manager123',},format='json')
-        result = loads(response.content)
-        cls.token_user_catalog_manager=result
         
         cls.client_authorized_1=APIClient()
         cls.client_authorized_1.credentials(HTTP_AUTHORIZATION='Token ' + cls.token_user_authorized_1)

@@ -12,7 +12,17 @@ request_casting = "^0.7.0"
 pydicts = "^0.16.0"
 djangorestframework = "^3.15.1"
 
+[tool.poetry.group.dev.dependencies]
+coverage = ">=7.6.1"
+poethepoet = ">=0.27.0"
+poetry = ">=1.8.3"
+
+
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.poe.tasks]
+reusing = { script = "gdparchis.poethepoet:reusing" }
