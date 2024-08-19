@@ -14,7 +14,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        print(validated_data)
+        #print(validated_data)
         validated_data["datetime"]=timezone.now()
         validated_data["uuid"]=str(uuid4())
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)

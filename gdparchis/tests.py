@@ -67,4 +67,6 @@ class API(APITestCase):
         state=tests_helpers.client_get(self, self.client_authorized_1, game["url"]+"state/",   status.HTTP_200_OK)
         dod.dod_print(state)
         
+        state=tests_helpers.client_get(self, self.client_authorized_1, game["url"]+"dice_click/",   status.HTTP_200_OK)
+        
         

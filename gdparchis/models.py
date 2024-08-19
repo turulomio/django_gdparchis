@@ -38,10 +38,8 @@ class Game(models.Model):
         db_table = 'games'
         
     def last_state(self, request):
-        try:
-            return dictstate.dState(loads(State.objects.filter(game=self).order_by("-datetime")[0].state, request))
-        except:
-            return None
+        return dictstate.dState(loads(State.objects.filter(game=self).order_by("-datetime")[0].state), request)
+        
 
 class State(models.Model):
     game = models.ForeignKey("Game", on_delete=models.CASCADE, blank=False, null=False)

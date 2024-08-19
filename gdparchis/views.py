@@ -16,6 +16,8 @@ from rest_framework.authtoken.models import Token
 from statistics import median
 from pydicts import dod
 
+dod
+
 class InstallationAPIView(APIView):
     permission_classes=[]
     
@@ -215,8 +217,7 @@ class GameViewSet(viewsets.ModelViewSet):
     def state(self, request, pk=None):
         game=self.get_object()
         ls=game.last_state(request)
-        dod.dod_print(ls)
-        return Response(ls, status=status.HTTP_200_OK)    
+        return Response(ls.state(), status=status.HTTP_200_OK)    
     
     @action(detail=True, methods=["get"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
     def dice_click(self, request, pk=None):
@@ -228,8 +229,6 @@ class GameViewSet(viewsets.ModelViewSet):
         if not all_args_are_not_none(player, value,game, ls):            
             return Response(_("Some parameters are wrong"), status.HTTP_400_BAD_REQUEST)
 
-            
-        
         #Checks current_player is player clicked dice
         if not ls.is_current_player(player):
             return Response(_("Incorrect player clicked dice"), status.HTTP_400_BAD_REQUEST)
@@ -239,11 +238,8 @@ class GameViewSet(viewsets.ModelViewSet):
             ls.current_player_add_a_throw(value)
             ls.current_player_set_dice_waiting(False)
             ##Must select pieces as waiting
-           
-            
-        
-        dod.dod_print(ls)
-        return Response({}, status=status.HTTP_200_OK)
+
+        return Response(ls.state(), status=status.HTTP_200_OK)
         
     
 
@@ -268,7 +264,6 @@ def login(request):
         if not pwd_valid:
             return Response("Wrong credentials", status=status.HTTP_401_UNAUTHORIZED)
 
-        print(Token)
         if Token.objects.filter(user=user).exists():#Lo borra
             token=Token.objects.get(user=user)
             token.delete()
