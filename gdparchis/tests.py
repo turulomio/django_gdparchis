@@ -66,5 +66,7 @@ class API(APITestCase):
         self.assertEqual("Incorrect player clicked dice",  state)
                 
         state=tests_helpers.client_post(self, self.client_authorized_1, game["url"]+"dice_click/",   {"player": 0,  "value":5},  status.HTTP_200_OK)
+        
+        state=tests_helpers.client_post(self, self.client_authorized_1, game["url"]+"piece_click/",   {"player": 0,  "piece":0},  status.HTTP_200_OK)
         dod.dod_print(state)
         

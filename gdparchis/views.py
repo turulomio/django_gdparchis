@@ -219,7 +219,7 @@ class GameViewSet(viewsets.ModelViewSet):
         ls=game.last_state(request)
         return Response(ls.state(), status=status.HTTP_200_OK)    
     
-    @action(detail=True, methods=["POST"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
+    @action(detail=True, methods=["POST"], name='Process user dice click', url_path="dice_click", url_name='dice_click')
     def dice_click(self, request, pk=None):
         player=RequestInteger(request, "player")
         value=RequestInteger(request, "value")
@@ -236,16 +236,36 @@ class GameViewSet(viewsets.ModelViewSet):
         #Comprueba que está esperando el dado del jugador, lo cambia y devuelve 
         if ls.cp_is_dice_waiting():
             ls.change_waitings_after_dice_throw(player, value)
-
-        return Response(ls.state(), status=status.HTTP_200_OK)
+            ls.save()
+            return Response(ls.state(), status=status.HTTP_200_OK)    
         
-    
+        return Response(_("Dice is not waiting"), status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=True, methods=["POST"], name='Process user piece click', url_path="piece_click", url_name='piece_click')
+    def piece_click(self, request, pk=None):
+        player=RequestInteger(request, "player")
+        piece=RequestInteger(request, "piece")
+        game=self.get_object()
+        ls=game.last_state(request)
+        
+        if not all_args_are_not_none(player, piece,game, ls):            
+            return Response(_("Some parameters are wrong"), status.HTTP_400_BAD_REQUEST)
+
+        #Checks current_player is player clicked dice
+        if not ls.cp_is(player):
+            return Response(_("Incorrect player clicked piece"), status.HTTP_400_BAD_REQUEST)
+            
+        #Comprueba que está esperando el dado del jugador, lo cambia y devuelve 
+        if ls.piece_is_waiting(player, piece):
+            ls.process_piece_click(player, piece)
+            ls.save()
+            return Response(ls.state(), status=status.HTTP_200_OK)
+        else:
+            return Response(_("This piece can't be moved"), status.HTTP_400_BAD_REQUEST)
 
 class StateViewSet(viewsets.ModelViewSet):
     queryset = models.State.objects.all()
     serializer_class =  serializers.StateSerializer
-
-
 
 @api_view(['POST'])
 def login(request):

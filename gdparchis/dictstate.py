@@ -1,3 +1,7 @@
+from django.utils import timezone
+from gdparchis import models
+from json import dumps
+
 class dState:
     def __init__(self, state, request):
         self._s=state
@@ -7,7 +11,7 @@ class dState:
         return self.request.squares4[square_id]
         
     def route(self, player_id):
-        return self.request.route4[player_id]
+        return self.request.routes4[player_id]
         
     def cp_route(self):
         return self.route(self._s["current"])
@@ -59,6 +63,16 @@ class dState:
         
     def piece(self,  player_id,  piece_id):
         return self.player(player_id)["pieces"][piece_id]
+        
+    def piece_square(self, player_id,  piece_id):
+        """
+            Returns a square_id
+        """
+        piece=self.piece(player_id,  piece_id)
+        return self.square(self.route(player_id)["route"][piece["route_position"]])
+        
+    def piece_is_waiting(self,  player_id,  piece_id):
+        return self.piece(player_id, piece_id)["waiting"]>0
     
     def piece_squares_to_move_after_throw(self, player_id, piece_id,  throw):
         piece=self.piece(player_id,  piece_id)
@@ -79,4 +93,33 @@ class dState:
         self.cp_add_a_throw(throw)
         for piece in self.cp_pieces():
             piece["waiting"]=self.piece_squares_to_move_after_throw(player_id, piece["id"], throw )
+            
+    def save(self):
+        state=models.State()
+        state.game_id=self._s["game_id"]
+        state.datetime=timezone.now()
+        state.state=dumps(self._s)
+        state.save()
+        
+    def square_get_free_position(self, square_id):
+        """
+            REturns None if there isn't free position
+        """
+        square=self.square(square_id)
+        square
+        
+        return 0
+            
+    def process_piece_click(self, player_id,  piece_id):
+        """
+            En este punto no hay que hacer validaciones, solo se mueve
+        """
+        piece=self.piece(player_id,  piece_id)
+        piece["route_position"]=piece["route_position"]+piece["waiting"]
+        piece_square=self.piece_square(player_id,  piece_id)
+        piece["square_position"]=self.square_get_free_position(piece_square["id"])
+        # Sets waiting 0
+        for piece in self.pieces(player_id):
+            piece["waiting"]=0
+        
         
