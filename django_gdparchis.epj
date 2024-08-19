@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_gdparchis",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-08-19, 08:33:32"
+    "saved": "2024-08-19, 11:05:51"
   },
   "project": {
     "AUTHOR": "",
@@ -98,8 +98,7 @@
       "gdparchis/tests.py",
       "gdparchis/types.py",
       "gdparchis/views.py",
-      "manage.py",
-      "update_reusing.py"
+      "manage.py"
     ],
     "SOURCESDIR": "",
     "SPELLEXCLUDES": "",
