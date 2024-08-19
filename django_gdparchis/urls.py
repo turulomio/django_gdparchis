@@ -14,4 +14,6 @@ urlpatterns = [
     path('games/', views.GameAPIView.as_view()),
     path('statistics/globals/', views.StatisticsGlobal),
     path('statistics/user/', views.StatisticsUser),
+    path('login/', views.login),
+    path('api-auth/', include('rest_framework.urls'))
 ]

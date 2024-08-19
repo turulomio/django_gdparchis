@@ -2,7 +2,7 @@
   "header": {
     "comment": "eric project file for project django_gdparchis",
     "copyright": "Copyright (C) 2024 , ",
-    "saved": "2024-05-14, 16:16:36"
+    "saved": "2024-05-15, 07:06:12"
   },
   "project": {
     "AUTHOR": "",
@@ -77,14 +77,14 @@
       "gdparchis/__init__.py",
       "gdparchis/admin.py",
       "gdparchis/apps.py",
+      "gdparchis/dictstate.py",
       "gdparchis/middleware.py",
       "gdparchis/migrations/__init__.py",
       "gdparchis/models.py",
       "gdparchis/reusing/github.py",
-      "gdparchis/reusing/request_casting.py",
-      "gdparchis/reusing/responses_json.py",
       "gdparchis/serializers.py",
       "gdparchis/tests.py",
+      "gdparchis/types.py",
       "gdparchis/views.py",
       "manage.py"
     ],

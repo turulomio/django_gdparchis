@@ -1,15 +1,20 @@
 from datetime import timedelta
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import User
 from django.db.models import Max, Count, F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from gdparchis import models, serializers
-from request_casting.request_casting import RequestBool, RequestInteger,  RequestString, all_args_are_not_empty
+from request_casting.request_casting import RequestBool, RequestInteger,  RequestString, all_args_are_not_none, all_args_are_not_empty
 
+from rest_framework.decorators import action, api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import  status, viewsets
+from rest_framework.authtoken.models import Token
 from statistics import median
+from pydicts import dod
 
 class InstallationAPIView(APIView):
     permission_classes=[]
@@ -205,7 +210,64 @@ class GameViewSet(viewsets.ModelViewSet):
     queryset = models.Game.objects.all()
     serializer_class =  serializers.GameSerializer
     
+    
+    @action(detail=True, methods=["get"], name='Returns historical concept report', url_path="dice_click", url_name='dice_click')
+    def dice_click(self, request, pk=None):
+        player=RequestInteger(request, "player")
+        value=RequestInteger(request, "value")
+        game=self.get_object()
+        ls=game.last_state(request)
+        
+        if not all_args_are_not_none(player, value,game, ls):            
+            return Response(_("Some parameters are wrong"), status.HTTP_400_BAD_REQUEST)
+
+            
+        
+        #Checks current_player is player clicked dice
+        if not ls.is_current_player(player):
+            return Response(_("Incorrect player clicked dice"), status.HTTP_400_BAD_REQUEST)
+            
+        #Comprueba que está esperando el dado del jugador, lo cambia y devuelve 
+        if ls.current_player_is_dice_waiting():
+            ls.current_player_add_a_throw(value)
+            ls.current_player_set_dice_waiting(False)
+            ##Must select pieces as waiting
+           
+            
+        
+        dod.dod_print(ls)
+        return Response({}, status=status.HTTP_200_OK)
+        
+    
 
 class StateViewSet(viewsets.ModelViewSet):
     queryset = models.State.objects.all()
     serializer_class =  serializers.StateSerializer
+
+
+
+@api_view(['POST'])
+def login(request):
+    username=RequestString(request, "username")
+    password=RequestString(request, "password")
+    
+    if all_args_are_not_none(username, password):
+        try:
+            user=User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response("Wrong credentials", status=status.HTTP_401_UNAUTHORIZED)
+            
+        pwd_valid=check_password(password, user.password)
+        if not pwd_valid:
+            return Response("Wrong credentials", status=status.HTTP_401_UNAUTHORIZED)
+
+        if Token.objects.filter(user=user).exists():#Lo borra
+            token=Token.objects.get(user=user)
+            token.delete()
+        token=Token.objects.create(user=user)
+        
+        user.last_login=timezone.now()
+        user.save()
+        return Response(token.key)
+    else:
+        return Response("Wrong credentials", status=status.HTTP_401_UNAUTHORIZED)

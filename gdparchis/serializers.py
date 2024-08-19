@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils import timezone
 from gdparchis import models
 from json import dumps
 from rest_framework import serializers
@@ -13,6 +14,9 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        print(validated_data)
+        validated_data["datetime"]=timezone.now()
+        validated_data["uuid"]=str(uuid4())
         created=serializers.HyperlinkedModelSerializer.create(self,  validated_data)
         created.save()
         
@@ -23,7 +27,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
         dict["max_players"]=created.max_players
         dict["current"]=0
         dict["fake_dice"]=[]
-        dict["game_uuid"]=str(uuid4())
+        dict["game_uuid"]=created.uuid
         dict["players"]=[]
         for player_id in range(4):
             dict_p={}
@@ -32,7 +36,8 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
             dict_p["plays"]=True
             dict_p["ia"]=False if player_id==0 else True
             dict_p["dice_waiting"]=True if player_id==0 else False
-            dict["players"].append(dict_p)
+            dict_p["throws"]=[]
+            dict_p["extra_moves"]=[]
             dict_p["pieces"]=[]
             for piece_id in range(4):
                 dict_piece={}
@@ -41,6 +46,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
                 dict_piece["square_position"]=0
                 dict_piece["waiting"]=False
                 dict_p["pieces"].append(dict_piece)
+            dict["players"].append(dict_p)
         
         state=models.State()
         state.datetime=created.datetime

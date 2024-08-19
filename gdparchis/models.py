@@ -1,4 +1,6 @@
 from django.db import models
+from json import loads
+from gdparchis import dictstate
 
 class InstallationStatistic(models.Model):
     datetime = models.DateTimeField(blank=False, null=False)
@@ -28,12 +30,18 @@ class GameStatistic(models.Model):
         
         
 class Game(models.Model):    
-    uuid= models.UUIDField(blank=False, null=False)
-    datetime=models.DateTimeField(blank=False, null=False)
+    uuid= models.UUIDField(blank=True, null=False)
+    datetime=models.DateTimeField(blank=True, null=False)
     max_players=models.IntegerField(blank=False, null=False)
     class Meta:
         managed = True
         db_table = 'games'
+        
+    def last_state(self, request):
+        try:
+            return dictstate.dState(loads(State.objects.filter(game=self).order_by("-datetime")[0].state, request))
+        except:
+            return None
 
 class State(models.Model):
     game = models.ForeignKey("Game", on_delete=models.CASCADE, blank=False, null=False)
